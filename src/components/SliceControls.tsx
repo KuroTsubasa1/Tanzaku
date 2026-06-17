@@ -2,7 +2,7 @@ import React from 'react';
 import { Slider } from './ui/Slider';
 import { Input } from './ui/Input';
 import { Card, CardContent } from './ui/Card';
-import { Layers, Ruler, AlignJustify, Grid } from 'lucide-react';
+import { Ruler, AlignJustify, Grid2x2, CornerDownRight } from 'lucide-react';
 
 interface SliceControlsProps {
   mode: 'width' | 'count';
@@ -23,6 +23,15 @@ interface SliceControlsProps {
   verticalSliceCount: number;
   onVerticalSliceCountChange: (count: number) => void;
 }
+
+const AxisLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="mb-3 flex items-center gap-2">
+    <span className="h-px w-4 bg-shu" />
+    <h4 className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-sumi-soft">
+      {children}
+    </h4>
+  </div>
+);
 
 export const SliceControls: React.FC<SliceControlsProps> = ({
   mode,
@@ -90,51 +99,47 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
     onVerticalSliceCountChange(parseInt(e.target.value));
   };
 
+  // Live swatch: a 40px sample tile whose rounding mirrors radius ÷ slice width.
+  const swatchSize = 40;
+  const swatchRadius =
+    sliceWidth > 0 ? Math.min((cornerRadius * swatchSize) / sliceWidth, swatchSize / 2) : 0;
+
+  const tabClass = (active: boolean) =>
+    `flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${
+      active
+        ? 'bg-paper text-shu shadow-paper-sm'
+        : 'text-sumi-soft hover:text-sumi'
+    }`;
+
   return (
     <Card className="w-full">
       <CardContent className="pt-6">
-        <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Layers className="h-5 w-5 text-blue-500" />
-              <h3 className="font-semibold text-zinc-900">Slice Settings</h3>
-            </div>
+        <div className="flex flex-col gap-7">
+          <div className="flex items-center gap-2.5">
+            <Grid2x2 className="h-4 w-4 text-shu" />
+            <h3 className="font-display text-lg font-semibold text-sumi">Slice Settings</h3>
           </div>
 
           {/* Mode Toggle */}
-          <div className="flex p-1 bg-zinc-100 rounded-lg">
-            <button
-              onClick={() => onModeChange('width')}
-              className={`flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2 ${
-                mode === 'width'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <Ruler className="w-4 h-4" />
+          <div className="flex gap-1 rounded-lg bg-washi/70 p-1 ring-1 ring-line-soft">
+            <button onClick={() => onModeChange('width')} className={tabClass(mode === 'width')}>
+              <Ruler className="h-4 w-4" />
               By Size
             </button>
-            <button
-              onClick={() => onModeChange('count')}
-              className={`flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2 ${
-                mode === 'count'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <AlignJustify className="w-4 h-4" />
+            <button onClick={() => onModeChange('count')} className={tabClass(mode === 'count')}>
+              <AlignJustify className="h-4 w-4" />
               By Count
             </button>
           </div>
 
           {/* Horizontal Slicing Controls */}
           <div>
-            <h4 className="text-sm font-medium text-zinc-700 mb-2">Horizontal Axis (Width)</h4>
+            <AxisLabel>Horizontal · Width</AxisLabel>
             {mode === 'width' ? (
               <div className="flex items-end gap-4">
                 <div className="flex-1">
                   <Slider
-                    label="Slice Width (px)"
+                    label="Slice Width"
                     value={sliceWidth}
                     min={10}
                     max={Math.min(500, imageWidth)}
@@ -143,8 +148,7 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
                     valueDisplay={`${sliceWidth}px`}
                   />
                 </div>
-                <div className="w-24">
-                   <label className="text-xs text-zinc-500 mb-1 block">Precise</label>
+                <div className="w-20">
                   <Input
                     type="number"
                     value={sliceWidth}
@@ -167,8 +171,7 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
                     valueDisplay={`${sliceCount}`}
                   />
                 </div>
-                <div className="w-24">
-                   <label className="text-xs text-zinc-500 mb-1 block">Precise</label>
+                <div className="w-20">
                   <Input
                     type="number"
                     value={sliceCount}
@@ -182,31 +185,34 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
           </div>
 
           {/* Dual Mode Toggle */}
-          <div className="flex items-center justify-between py-2 border-t border-b border-zinc-100">
-             <div className="flex items-center gap-2">
-               <Grid className={`h-4 w-4 ${isDualMode ? 'text-blue-500' : 'text-zinc-400'}`} />
-               <span className="text-sm font-medium text-zinc-900">Dual Slicing Mode</span>
-             </div>
-             <label className="relative inline-flex items-center cursor-pointer">
-               <input 
-                  type="checkbox" 
-                  className="sr-only peer" 
-                  checked={isDualMode}
-                  onChange={(e) => onDualModeChange(e.target.checked)}
-               />
-               <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-             </label>
-          </div>
+          <label className="flex cursor-pointer items-center justify-between rounded-lg border border-line-soft bg-washi/40 px-3.5 py-3">
+            <div className="flex items-center gap-2.5">
+              <Grid2x2 className={`h-4 w-4 ${isDualMode ? 'text-shu' : 'text-sumi-faint'}`} />
+              <div>
+                <span className="block text-sm font-medium text-sumi">Dual slicing</span>
+                <span className="block text-xs text-sumi-soft">Cut a full grid</span>
+              </div>
+            </div>
+            <div className="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={isDualMode}
+                onChange={(e) => onDualModeChange(e.target.checked)}
+              />
+              <div className="h-6 w-11 rounded-full bg-line transition-colors peer-checked:bg-shu peer-focus-visible:ring-2 peer-focus-visible:ring-shu/40 after:absolute after:left-[3px] after:top-[3px] after:h-[18px] after:w-[18px] after:rounded-full after:bg-paper after:shadow-sm after:transition-all after:content-[''] peer-checked:after:translate-x-5" />
+            </div>
+          </label>
 
           {/* Vertical Slicing Controls (Conditional) */}
           {isDualMode && (
-            <div className="animate-in slide-in-from-top-2 duration-200">
-               <h4 className="text-sm font-medium text-zinc-700 mb-2">Vertical Axis (Height)</h4>
-               {mode === 'width' ? (
+            <div className="animate-rise-in">
+              <AxisLabel>Vertical · Height</AxisLabel>
+              {mode === 'width' ? (
                 <div className="flex items-end gap-4">
                   <div className="flex-1">
                     <Slider
-                      label="Slice Height (px)"
+                      label="Slice Height"
                       value={sliceHeight}
                       min={10}
                       max={Math.min(500, imageHeight)}
@@ -215,8 +221,7 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
                       valueDisplay={`${sliceHeight}px`}
                     />
                   </div>
-                  <div className="w-24">
-                    <label className="text-xs text-zinc-500 mb-1 block">Precise</label>
+                  <div className="w-20">
                     <Input
                       type="number"
                       value={sliceHeight}
@@ -239,8 +244,7 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
                       valueDisplay={`${verticalSliceCount}`}
                     />
                   </div>
-                  <div className="w-24">
-                     <label className="text-xs text-zinc-500 mb-1 block">Precise</label>
+                  <div className="w-20">
                     <Input
                       type="number"
                       value={verticalSliceCount}
@@ -254,40 +258,59 @@ export const SliceControls: React.FC<SliceControlsProps> = ({
             </div>
           )}
 
-          <div className="h-px bg-zinc-100 my-2" />
+          <div className="h-px bg-line-soft" />
 
           {/* Corner Radius Controls */}
           <div>
-             <h4 className="text-sm font-medium text-zinc-700 mb-4">Corner Radius</h4>
-             <div className="flex items-end gap-4">
-              <div className="flex-1">
-                <Slider
-                  label="Radius (px)"
-                  value={cornerRadius}
-                  min={1}
-                  max={Math.floor(sliceWidth / 2)}
-                  step={1}
-                  onChange={(e) => onCornerRadiusChange(parseInt(e.target.value))}
-                  valueDisplay={`${cornerRadius}px`}
+            <AxisLabel>
+              <span className="inline-flex items-center gap-1.5">
+                <CornerDownRight className="h-3 w-3" /> Corner Radius
+              </span>
+            </AxisLabel>
+            <div className="flex items-center gap-4">
+              <div
+                aria-hidden
+                className="grid h-14 w-14 shrink-0 place-items-center rounded-md border border-line-soft bg-washi/50"
+                title="Corner radius preview"
+              >
+                <div
+                  className="h-10 w-10 border border-dashed border-shu/70 shadow-paper-sm"
+                  style={{
+                    borderRadius: `${swatchRadius}px`,
+                    background: 'linear-gradient(135deg, #E7C7BE 0%, #F1EAD9 100%)',
+                    transition: 'border-radius 0.12s ease-out',
+                  }}
                 />
               </div>
-              <div className="w-24">
-                <Input
-                  type="number"
-                  value={cornerRadius}
-                  onChange={(e) => {
-                     const val = parseInt(e.target.value);
-                     if (!isNaN(val)) {
-                       onCornerRadiusChange(Math.max(0, Math.min(val, Math.floor(sliceWidth / 2))));
-                     }
-                  }}
-                  min={0}
-                  max={Math.floor(sliceWidth / 2)}
-                />
+              <div className="flex flex-1 items-end gap-4">
+                <div className="flex-1">
+                  <Slider
+                    label="Radius"
+                    value={cornerRadius}
+                    min={0}
+                    max={Math.max(1, Math.floor(sliceWidth / 2))}
+                    step={1}
+                    onChange={(e) => onCornerRadiusChange(parseInt(e.target.value))}
+                    valueDisplay={`${cornerRadius}px`}
+                  />
+                </div>
+                <div className="w-20">
+                  <Input
+                    type="number"
+                    value={cornerRadius}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val)) {
+                        onCornerRadiusChange(Math.max(0, Math.min(val, Math.floor(sliceWidth / 2))));
+                      }
+                    }}
+                    min={0}
+                    max={Math.floor(sliceWidth / 2)}
+                  />
+                </div>
               </div>
             </div>
           </div>
-
         </div>
       </CardContent>
     </Card>

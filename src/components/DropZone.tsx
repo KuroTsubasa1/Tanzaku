@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileImage } from 'lucide-react';
+import { Upload, Scissors } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { Card } from './ui/Card';
 
 interface DropZoneProps {
   onImageDrop: (file: File) => void;
@@ -32,32 +31,54 @@ export const DropZone: React.FC<DropZoneProps> = ({ onImageDrop, className }) =>
   });
 
   return (
-    <Card
+    <div
       {...getRootProps()}
       className={cn(
-        'border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center p-12 text-center h-[300px]',
-        isDragActive ? 'border-blue-500 bg-blue-50' : 'border-zinc-300 hover:border-blue-400 hover:bg-zinc-50',
-        isDragReject && 'border-red-500 bg-red-50',
+        'group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed bg-paper/70 p-14 text-center shadow-paper transition-all duration-200',
+        isDragActive
+          ? 'border-shu bg-shu-soft/40 scale-[1.01]'
+          : 'border-line hover:border-shu/60 hover:bg-paper',
+        isDragReject && 'border-shu-deep bg-shu-soft/60',
         className
       )}
     >
       <input {...getInputProps()} />
-      <div className="flex flex-col items-center gap-4">
-        <div className={cn('p-4 rounded-full', isDragActive ? 'bg-blue-100' : 'bg-zinc-100')}>
-          {isDragActive ? (
-            <Upload className="h-8 w-8 text-blue-500" />
-          ) : (
-            <FileImage className="h-8 w-8 text-zinc-500" />
+
+      {/* faint vertical strip motif */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(90deg, #211C16 0 1px, transparent 1px 64px)',
+        }}
+      />
+
+      <div className="relative flex flex-col items-center gap-5">
+        <div
+          className={cn(
+            'flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-200',
+            isDragActive
+              ? 'bg-shu text-paper rotate-3 shadow-seal'
+              : 'bg-washi text-shu group-hover:rotate-3 group-hover:scale-105'
           )}
+        >
+          {isDragActive ? <Upload className="h-7 w-7" /> : <Scissors className="h-7 w-7" />}
         </div>
-        <div className="space-y-1">
-          <p className="text-lg font-medium text-zinc-900">
-            {isDragActive ? 'Drop the image here' : 'Drag & drop an image here'}
+
+        <div className="space-y-1.5">
+          <p className="font-display text-xl font-semibold text-sumi">
+            {isDragActive ? 'Release to begin' : 'Drop an image to slice'}
           </p>
-          <p className="text-sm text-zinc-500">or click to select a file</p>
+          <p className="text-sm text-sumi-soft">
+            or <span className="font-medium text-shu underline-offset-4 group-hover:underline">browse</span> your files
+          </p>
         </div>
-        <p className="text-xs text-zinc-400">Supports JPG, PNG, GIF, WebP up to 50MB</p>
+
+        <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-sumi-faint">
+          JPG · PNG · GIF · WEBP — up to 50MB
+        </p>
       </div>
-    </Card>
+    </div>
   );
 };

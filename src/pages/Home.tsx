@@ -4,14 +4,14 @@ import { SliceControls } from '../components/SliceControls';
 import { ImagePreview } from '../components/ImagePreview';
 import { SliceActions } from '../components/SliceActions';
 import { Button } from '../components/ui/Button';
-import { Scissors, RefreshCw, FileText } from 'lucide-react';
+import { RefreshCw, ScrollText } from 'lucide-react';
 import { OperationLog } from '../utils/imageProcessor';
 
 export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [sliceMode, setSliceMode] = useState<'width' | 'count'>('width');
+  const [sliceMode, setSliceMode] = useState<'width' | 'count'>('count');
   const [sliceWidth, setSliceWidth] = useState(100);
-  const [sliceCount, setSliceCount] = useState(10);
+  const [sliceCount, setSliceCount] = useState(5);
   const [cornerRadius, setCornerRadius] = useState(0);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
 
@@ -27,8 +27,8 @@ export default function Home() {
       setSliceWidth(100);
       setSliceHeight(100);
     } else {
-      setSliceCount(4);
-      setVerticalSliceCount(4);
+      setSliceCount(5);
+      setVerticalSliceCount(5);
     }
     setCornerRadius(0);
     setImageDimensions(null);
@@ -37,9 +37,9 @@ export default function Home() {
   const handleReset = () => {
     setImageFile(null);
     setSliceWidth(100);
-    setSliceCount(4);
+    setSliceCount(5);
     setSliceHeight(100);
-    setVerticalSliceCount(4);
+    setVerticalSliceCount(5);
     setCornerRadius(0);
     setImageDimensions(null);
     setLogs([]);
@@ -125,20 +125,25 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900">
+    <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-zinc-200 sticky top-0 z-10">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-500 p-2 rounded-lg text-white">
-              <Scissors className="h-5 w-5" />
+      <header className="sticky top-0 z-20 border-b border-line bg-washi/85 backdrop-blur-md">
+        <div className="container mx-auto flex h-16 items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 animate-seal-in items-center justify-center rounded-lg bg-shu text-paper shadow-seal">
+              <span className="font-display text-lg font-bold leading-none">短</span>
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">
-              Tanzaku
-            </h1>
+            <div className="leading-none">
+              <h1 className="font-display text-xl font-bold tracking-tight text-sumi">
+                Tanzaku
+              </h1>
+              <span className="font-mono text-[0.6rem] uppercase tracking-[0.3em] text-sumi-faint">
+                Image Slicer
+              </span>
+            </div>
           </div>
           {imageFile && (
-            <Button variant="ghost" size="sm" onClick={handleReset} className="text-zinc-500 hover:text-red-500">
+            <Button variant="outline" size="sm" onClick={handleReset}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Start Over
             </Button>
@@ -147,22 +152,29 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto flex-1 py-10">
         {!imageFile ? (
-          <div className="max-w-2xl mx-auto mt-12">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">Slice images instantly</h2>
-              <p className="text-lg text-zinc-600">
-                Drag and drop your image to slice it into equal width strips. 
-                Perfect for Instagram carousels, web sprites, and more.
+          <div className="mx-auto mt-10 max-w-2xl animate-rise-in">
+            <div className="mb-9 text-center">
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.32em] text-shu">
+                短冊 · paper strips
+              </p>
+              <h2 className="mb-4 font-display text-4xl font-bold leading-tight text-sumi sm:text-5xl">
+                Slice images into
+                <br />
+                clean strips.
+              </h2>
+              <p className="mx-auto max-w-md text-base text-sumi-soft">
+                Drop an image to cut it into equal strips or a full grid — for carousels,
+                sprite sheets, and prints. Everything stays in your browser.
               </p>
             </div>
             <DropZone onImageDrop={handleImageDrop} />
           </div>
         ) : (
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
+          <div className="grid animate-rise-in items-start gap-8 lg:grid-cols-12">
             {/* Sidebar Controls (Desktop) */}
-            <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+            <div className="space-y-6 lg:sticky lg:top-24 lg:col-span-4">
               <SliceControls
                 mode={sliceMode}
                 onModeChange={handleModeChange}
@@ -197,29 +209,37 @@ export default function Home() {
 
               {/* Logs Section */}
               {logs.length > 0 && (
-                <div className="hidden lg:block bg-white rounded-lg border border-zinc-200 p-4 mt-6">
-                   <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-zinc-700">
-                     <FileText className="h-4 w-4" />
-                     Operation Logs
-                   </div>
-                   <div className="max-h-60 overflow-y-auto space-y-2 text-xs">
-                     {logs.map((log, i) => (
-                       <div key={i} className="p-2 bg-zinc-50 rounded border border-zinc-100">
-                         <div className="flex justify-between font-medium">
-                           <span className={log.status === 'completed' ? 'text-green-600' : 'text-red-600'}>
-                             {log.status.toUpperCase()}
-                           </span>
-                           <span className="text-zinc-400">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                         </div>
-                         <div className="mt-1 text-zinc-600">
-                           {log.mode === 'grid' ? 'Dual Axis' : 'Single Axis'} | {log.totalSlices} slices
-                         </div>
-                         <div className="text-zinc-500">
-                           {log.durationMs}ms duration
-                         </div>
-                       </div>
-                     ))}
-                   </div>
+                <div className="mt-6 hidden rounded-xl border border-line bg-paper p-4 shadow-paper-sm lg:block">
+                  <div className="mb-3 flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-sumi-soft">
+                    <ScrollText className="h-3.5 w-3.5 text-shu" />
+                    Operation Log
+                  </div>
+                  <div className="tz-scroll max-h-60 space-y-2 overflow-y-auto pr-1 text-xs">
+                    {logs.map((log, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg border border-line-soft bg-washi/50 p-2.5"
+                      >
+                        <div className="flex justify-between font-medium">
+                          <span
+                            className={`font-mono uppercase tracking-wide ${
+                              log.status === 'completed' ? 'text-matcha' : 'text-shu-deep'
+                            }`}
+                          >
+                            {log.status}
+                          </span>
+                          <span className="font-mono text-sumi-faint">
+                            {new Date(log.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-sumi-soft">
+                          {log.mode === 'grid' ? 'Dual axis' : 'Single axis'} ·{' '}
+                          <span className="font-mono">{log.totalSlices}</span> slices ·{' '}
+                          <span className="font-mono">{log.durationMs}ms</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -231,6 +251,7 @@ export default function Home() {
                 sliceWidth={sliceWidth}
                 isDualMode={isDualMode}
                 sliceHeight={sliceHeight}
+                cornerRadius={cornerRadius}
                 onImageLoad={handleImageLoad}
               />
               
@@ -252,8 +273,13 @@ export default function Home() {
       </main>
       
       {/* Footer */}
-      <footer className="py-8 text-center text-zinc-400 text-sm mt-auto border-t border-zinc-200">
-        <p>© {new Date().getFullYear()} Tanzaku. Client-side processing only.</p>
+      <footer className="mt-auto border-t border-line py-8">
+        <div className="container mx-auto flex flex-col items-center gap-1 text-center">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-sumi-faint">
+            短冊 — client-side only · nothing leaves your device
+          </p>
+          <p className="text-xs text-sumi-soft">© {new Date().getFullYear()} Tanzaku</p>
+        </div>
       </footer>
     </div>
   );

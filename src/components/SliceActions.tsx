@@ -86,42 +86,42 @@ export const SliceActions: React.FC<SliceActionsProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 mt-6">
+    <div className="mt-2 flex flex-col gap-4">
       {isProcessing && (
-        <div className="space-y-2 p-4 bg-zinc-50 rounded-lg border border-zinc-200 animate-in fade-in zoom-in-95 duration-200">
-           <div className="flex justify-between text-sm font-medium text-zinc-700">
-             <span>{statusText}</span>
-             <span>{progress}%</span>
-           </div>
-           <div className="h-2 bg-zinc-200 rounded-full overflow-hidden">
-             <div 
-               className="h-full bg-blue-600 transition-all duration-300 ease-out"
-               style={{ width: `${progress}%` }}
-             />
-           </div>
+        <div className="animate-rise-in space-y-2.5 rounded-lg border border-line bg-paper p-4 shadow-paper-sm">
+          <div className="flex justify-between font-mono text-xs uppercase tracking-[0.12em] text-sumi-soft">
+            <span>{statusText}</span>
+            <span className="text-shu">{progress}%</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-line">
+            <div
+              className="h-full rounded-full bg-shu transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       )}
-      
-      <div className="flex gap-4 justify-end">
+
+      <div className="flex justify-end">
         {isProcessing ? (
-           <Button
+          <Button
             size="lg"
             variant="destructive"
             onClick={handleEmergencyStop}
-            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 animate-pulse"
+            className="w-full animate-pulse uppercase tracking-[0.15em]"
           >
             <Ban className="mr-2 h-5 w-5" />
-            EMERGENCY STOP
+            Emergency Stop
           </Button>
         ) : (
           <Button
             size="lg"
             onClick={handleStartOperation}
             disabled={disabled || !imageFile}
-            className="w-full sm:w-auto"
+            className="w-full"
           >
             <Scissors className="mr-2 h-5 w-5" />
-            {isDualMode ? 'Start Dual Slicing Operation' : 'Slice Image'}
+            {isDualMode ? 'Slice into Grid' : 'Slice Image'}
           </Button>
         )}
       </div>
